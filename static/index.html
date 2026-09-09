@@ -1,0 +1,2209 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"
+
+>
+
+<title>
+    Low Latency Agentic Voice
+</title>
+
+<style>
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+
+        margin: 0;
+
+        min-height: 100vh;
+
+        font-family:
+            Arial,
+            Helvetica,
+            sans-serif;
+
+        background: #111827;
+
+        color: white;
+
+        display: flex;
+
+        justify-content: center;
+
+        align-items: center;
+    }
+
+    .container {
+
+        width: 92%;
+
+        max-width: 900px;
+
+        background: #1f2937;
+
+        border-radius: 16px;
+
+        padding: 32px;
+
+        box-shadow:
+            0 20px 50px
+            rgba(0, 0, 0, 0.35);
+    }
+
+    h1 {
+
+        margin-top: 0;
+
+        margin-bottom: 8px;
+    }
+
+    .subtitle {
+
+        color: #9ca3af;
+
+        margin-bottom: 30px;
+    }
+
+    .section-title {
+
+        font-size: 18px;
+
+        font-weight: bold;
+
+        margin-bottom: 12px;
+    }
+
+    .status {
+
+        background: #111827;
+
+        padding: 16px;
+
+        border-radius: 8px;
+
+        margin-bottom: 20px;
+    }
+
+    .status-label {
+
+        color: #9ca3af;
+
+        font-size: 13px;
+    }
+
+    #status {
+
+        margin-top: 5px;
+
+        font-weight: bold;
+    }
+
+    .controls {
+
+        display: flex;
+
+        gap: 12px;
+
+        flex-wrap: wrap;
+
+        margin-bottom: 25px;
+    }
+
+    button {
+
+        border: none;
+
+        padding: 12px 20px;
+
+        border-radius: 8px;
+
+        font-size: 15px;
+
+        cursor: pointer;
+    }
+
+    #connectButton {
+
+        background: #2563eb;
+
+        color: white;
+    }
+
+    #startButton {
+
+        background: #16a34a;
+
+        color: white;
+    }
+
+    #stopButton {
+
+        background: #dc2626;
+
+        color: white;
+    }
+
+    button:disabled {
+
+        opacity: 0.4;
+
+        cursor: not-allowed;
+    }
+
+    .metrics {
+
+        display: grid;
+
+        grid-template-columns:
+            repeat(
+                auto-fit,
+                minmax(150px, 1fr)
+            );
+
+        gap: 12px;
+
+        margin-bottom: 25px;
+    }
+
+    .metric {
+
+        background: #111827;
+
+        padding: 16px;
+
+        border-radius: 8px;
+    }
+
+    .metric-title {
+
+        color: #9ca3af;
+
+        font-size: 13px;
+    }
+
+    .metric-value {
+
+        margin-top: 6px;
+
+        font-size: 20px;
+
+        font-weight: bold;
+    }
+
+    .dashboard {
+
+        background: #111827;
+
+        border-radius: 10px;
+
+        padding: 20px;
+
+        margin-top: 25px;
+
+        margin-bottom: 25px;
+    }
+
+    .latency-grid {
+
+        display: grid;
+
+        grid-template-columns:
+            repeat(
+                auto-fit,
+                minmax(170px, 1fr)
+            );
+
+        gap: 12px;
+    }
+
+    .latency-card {
+
+        background: #1f2937;
+
+        border-radius: 8px;
+
+        padding: 15px;
+
+        border: 1px solid #374151;
+    }
+
+    .latency-title {
+
+        color: #9ca3af;
+
+        font-size: 13px;
+    }
+
+    .latency-value {
+
+        font-size: 22px;
+
+        font-weight: bold;
+
+        margin-top: 7px;
+    }
+
+    .trace-info {
+
+        margin-top: 15px;
+
+        color: #9ca3af;
+
+        font-family: monospace;
+
+        font-size: 12px;
+    }
+
+    .bottleneck {
+
+        margin-top: 20px;
+
+        background: #1f2937;
+
+        border-radius: 8px;
+
+        padding: 16px;
+
+        border: 1px solid #374151;
+    }
+
+    .bottleneck-title {
+
+        color: #9ca3af;
+
+        font-size: 13px;
+
+        margin-bottom: 8px;
+    }
+
+    .bottleneck-stage {
+
+        font-size: 22px;
+
+        font-weight: bold;
+    }
+
+    .bottleneck-details {
+
+        margin-top: 8px;
+
+        color: #9ca3af;
+
+        font-size: 13px;
+
+        line-height: 1.5;
+    }
+
+    .trace-container {
+
+        margin-top: 20px;
+
+        overflow-x: auto;
+    }
+
+    .trace-table {
+
+        width: 100%;
+
+        border-collapse: collapse;
+
+        font-size: 13px;
+    }
+
+    .trace-table th {
+
+        text-align: left;
+
+        color: #9ca3af;
+
+        padding: 10px;
+
+        border-bottom: 1px solid #374151;
+    }
+
+    .trace-table td {
+
+        padding: 10px;
+
+        border-bottom: 1px solid #374151;
+    }
+
+    .trace-table td:last-child {
+
+        font-family: monospace;
+
+        text-align: right;
+    }
+
+    .conversation {
+
+        margin-top: 25px;
+
+        background: #111827;
+
+        border-radius: 8px;
+
+        padding: 16px;
+    }
+
+    .conversation-title {
+
+        color: #9ca3af;
+
+        font-size: 13px;
+
+        margin-bottom: 10px;
+    }
+
+    #transcript {
+
+        min-height: 30px;
+
+        margin-bottom: 12px;
+    }
+
+    #aiResponse {
+
+        min-height: 30px;
+    }
+
+    .label {
+
+        color: #9ca3af;
+
+        font-size: 12px;
+    }
+
+    #eventLog {
+
+        margin-top: 25px;
+
+        background: #111827;
+
+        border-radius: 8px;
+
+        padding: 15px;
+
+        height: 180px;
+
+        overflow-y: auto;
+
+        font-family: monospace;
+
+        font-size: 12px;
+    }
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>
+    Low Latency Agentic Voice
+</h1>
+
+<div class="subtitle">
+    Real-time Groq voice assistant
+</div>
+
+<div class="status">
+
+```
+<div class="status-label">
+    Connection
+</div>
+
+<div id="status">
+    Disconnected
+</div>
+```
+
+</div>
+
+<div class="controls">
+
+```
+<button
+    id="connectButton"
+    onclick="connectWebSocket()"
+>
+    Connect
+</button>
+
+<button
+    id="startButton"
+    onclick="startRecording()"
+    disabled
+>
+    Start Voice
+</button>
+
+<button
+    id="stopButton"
+    onclick="stopRecording()"
+    disabled
+>
+    Stop Voice
+</button>
+```
+
+</div>
+
+<div class="metrics">
+
+```
+<div class="metric">
+
+    <div class="metric-title">
+        Audio Chunks
+    </div>
+
+    <div
+        class="metric-value"
+        id="chunkCount"
+    >
+        0
+    </div>
+
+</div>
+
+<div class="metric">
+
+    <div class="metric-title">
+        Audio Bytes
+    </div>
+
+    <div
+        class="metric-value"
+        id="byteCount"
+    >
+        0
+    </div>
+
+</div>
+
+<div class="metric">
+
+    <div class="metric-title">
+        STT
+    </div>
+
+    <div
+        class="metric-value"
+        id="sttLatency"
+    >
+        -
+    </div>
+
+</div>
+
+<div class="metric">
+
+    <div class="metric-title">
+        TTFT
+    </div>
+
+    <div
+        class="metric-value"
+        id="ttft"
+    >
+        -
+    </div>
+
+</div>
+
+<div class="metric">
+
+    <div class="metric-title">
+        TTS
+    </div>
+
+    <div
+        class="metric-value"
+        id="ttsLatency"
+    >
+        -
+    </div>
+
+</div>
+```
+
+</div>
+
+<div class="dashboard">
+
+```
+<div class="section-title">
+    Latency Dashboard
+</div>
+
+<div class="latency-grid">
+
+    <div class="latency-card">
+
+        <div class="latency-title">
+            Total Pipeline
+        </div>
+
+        <div
+            class="latency-value"
+            id="totalLatency"
+        >
+            -
+        </div>
+
+    </div>
+
+    <div class="latency-card">
+
+        <div class="latency-title">
+            STT
+        </div>
+
+        <div
+            class="latency-value"
+            id="dashboardStt"
+        >
+            -
+        </div>
+
+    </div>
+
+    <div class="latency-card">
+
+        <div class="latency-title">
+            LLM
+        </div>
+
+        <div
+            class="latency-value"
+            id="llmLatency"
+        >
+            -
+        </div>
+
+    </div>
+
+    <div class="latency-card">
+
+        <div class="latency-title">
+            TTFT
+        </div>
+
+        <div
+            class="latency-value"
+            id="dashboardTtft"
+        >
+            -
+        </div>
+
+    </div>
+
+    <div class="latency-card">
+
+        <div class="latency-title">
+            Response Chunking
+        </div>
+
+        <div
+            class="latency-value"
+            id="chunkingLatency"
+        >
+            -
+        </div>
+
+    </div>
+
+    <div class="latency-card">
+
+        <div class="latency-title">
+            Total TTS
+        </div>
+
+        <div
+            class="latency-value"
+            id="dashboardTts"
+        >
+            -
+        </div>
+
+    </div>
+
+</div>
+
+<div
+    class="trace-info"
+    id="traceInfo"
+>
+    Trace ID: -
+</div>
+
+<div class="bottleneck">
+
+    <div class="bottleneck-title">
+        Primary Bottleneck
+    </div>
+
+    <div
+        class="bottleneck-stage"
+        id="bottleneckStage"
+    >
+        -
+    </div>
+
+    <div
+        class="bottleneck-details"
+        id="bottleneckDetails"
+    >
+        Waiting for trace analysis...
+    </div>
+
+</div>
+
+<div class="trace-container">
+
+    <table class="trace-table">
+
+        <thead>
+
+            <tr>
+
+                <th>
+                    Stage
+                </th>
+
+                <th>
+                    Event
+                </th>
+
+                <th>
+                    Elapsed
+                </th>
+
+            </tr>
+
+        </thead>
+
+        <tbody id="traceTableBody">
+
+            <tr>
+
+                <td colspan="3">
+                    No trace received yet.
+                </td>
+
+            </tr>
+
+        </tbody>
+
+    </table>
+
+</div>
+```
+
+</div>
+
+<div class="conversation">
+
+```
+<div class="conversation-title">
+    Conversation
+</div>
+
+<div class="label">
+    You
+</div>
+
+<div id="transcript">
+    -
+</div>
+
+<div class="label">
+    AI
+</div>
+
+<div id="aiResponse">
+    -
+</div>
+```
+
+</div>
+
+<div id="eventLog"></div>
+
+</div>
+
+<script>
+
+let socket = null;
+
+let mediaRecorder = null;
+
+let microphoneStream = null;
+
+let recordedChunks = [];
+
+let chunkCount = 0;
+
+let byteCount = 0;
+
+let audioQueue = [];
+
+let isPlayingAudio = false;
+
+let sendLiveChunks = false;
+
+let finalAudioReadyResolver = null;
+
+
+/* ==========================================================
+   UI HELPERS
+========================================================== */
+
+function setStatus(message) {
+
+    document.getElementById(
+        "status"
+    ).textContent = message;
+}
+
+
+function logEvent(message) {
+
+    const log =
+        document.getElementById(
+            "eventLog"
+        );
+
+    const timestamp =
+        new Date().toLocaleTimeString();
+
+    log.innerHTML +=
+        `[${timestamp}] ${message}<br>`;
+
+    log.scrollTop =
+        log.scrollHeight;
+}
+
+
+function updateMetrics() {
+
+    document.getElementById(
+        "chunkCount"
+    ).textContent =
+        chunkCount;
+
+    document.getElementById(
+        "byteCount"
+    ).textContent =
+        byteCount;
+}
+
+
+/* ==========================================================
+   LATENCY DASHBOARD
+========================================================== */
+
+function resetLatencyDashboard() {
+
+    document.getElementById(
+        "totalLatency"
+    ).textContent = "-";
+
+    document.getElementById(
+        "dashboardStt"
+    ).textContent = "-";
+
+    document.getElementById(
+        "llmLatency"
+    ).textContent = "-";
+
+    document.getElementById(
+        "dashboardTtft"
+    ).textContent = "-";
+
+    document.getElementById(
+        "chunkingLatency"
+    ).textContent = "-";
+
+    document.getElementById(
+        "dashboardTts"
+    ).textContent = "-";
+
+    document.getElementById(
+        "traceInfo"
+    ).textContent =
+        "Trace ID: -";
+
+    document.getElementById(
+        "bottleneckStage"
+    ).textContent = "-";
+
+    document.getElementById(
+        "bottleneckDetails"
+    ).textContent =
+        "Waiting for trace analysis...";
+
+    document.getElementById(
+        "traceTableBody"
+    ).innerHTML = `
+        <tr>
+            <td colspan="3">
+                No trace received yet.
+            </td>
+        </tr>
+    `;
+}
+
+
+function formatLatency(value) {
+
+    if (
+        value === null ||
+        value === undefined
+    ) {
+
+        return "-";
+    }
+
+    return `${value} ms`;
+}
+
+
+function findStageLatency(
+    events,
+    stage
+) {
+
+    const completedEvent =
+        events.find(
+            event =>
+                event.stage === stage &&
+                event.event === "completed"
+        );
+
+    if (
+        completedEvent &&
+        completedEvent.latency_ms !== undefined
+    ) {
+
+        return completedEvent.latency_ms;
+    }
+
+    return null;
+}
+
+
+function calculateTotalTtsLatency(
+    events
+) {
+
+    const ttsEvents =
+        events.filter(
+            event =>
+                event.stage === "tts" &&
+                event.event === "chunk_completed" &&
+                event.tts_latency_ms !== null &&
+                event.tts_latency_ms !== undefined
+        );
+
+    if (
+        ttsEvents.length === 0
+    ) {
+
+        return null;
+    }
+
+    return Number(
+        ttsEvents
+            .reduce(
+                (
+                    total,
+                    event
+                ) =>
+                    total +
+                    Number(
+                        event.tts_latency_ms
+                    ),
+                0
+            )
+            .toFixed(2)
+    );
+}
+
+
+/* ==========================================================
+   BOTTLENECK ANALYSIS
+========================================================== */
+
+function analyzeBottleneck(
+    events,
+    totalLatency
+) {
+
+    const stages = [];
+
+
+    const stageNames = [
+        "stt",
+        "llm",
+        "response_chunking"
+    ];
+
+
+    stageNames.forEach(
+        stageName => {
+
+            const event =
+                events.find(
+                    item =>
+                        item.stage === stageName &&
+                        item.event === "completed"
+                );
+
+
+            if (
+                event &&
+                event.latency_ms !== undefined &&
+                event.latency_ms !== null
+            ) {
+
+                stages.push({
+                    stage: stageName,
+                    latency_ms:
+                        Number(
+                            event.latency_ms
+                        )
+                });
+            }
+
+        }
+    );
+
+
+    const ttsLatency =
+        calculateTotalTtsLatency(
+            events
+        );
+
+
+    if (
+        ttsLatency !== null
+    ) {
+
+        stages.push({
+            stage: "tts",
+            latency_ms:
+                Number(
+                    ttsLatency
+                )
+        });
+    }
+
+
+    if (
+        stages.length === 0
+    ) {
+
+        document.getElementById(
+            "bottleneckStage"
+        ).textContent = "-";
+
+
+        document.getElementById(
+            "bottleneckDetails"
+        ).textContent =
+            "No stage latency data available.";
+
+        return;
+    }
+
+
+    stages.sort(
+        (
+            a,
+            b
+        ) =>
+            b.latency_ms -
+            a.latency_ms
+    );
+
+
+    const bottleneck =
+        stages[0];
+
+
+    const percentage =
+        totalLatency > 0
+            ? (
+                bottleneck.latency_ms /
+                totalLatency
+            ) * 100
+            : 0;
+
+
+    let displayName;
+
+
+    if (
+        bottleneck.stage ===
+        "response_chunking"
+    ) {
+
+        displayName =
+            "Response Chunking";
+
+    } else {
+
+        displayName =
+            bottleneck.stage.toUpperCase();
+    }
+
+
+    document.getElementById(
+        "bottleneckStage"
+    ).textContent =
+        displayName;
+
+
+    document.getElementById(
+        "bottleneckDetails"
+    ).textContent =
+        `${formatLatency(
+            bottleneck.latency_ms
+        )} — approximately ${percentage.toFixed(
+            1
+        )}% of the total pipeline latency.`;
+}
+
+
+/* ==========================================================
+   AGENT TRACE RENDERING
+========================================================== */
+
+function renderAgentTrace(
+    trace
+) {
+
+    const events =
+        trace.events || [];
+
+
+    document.getElementById(
+        "totalLatency"
+    ).textContent =
+        formatLatency(
+            trace.total_elapsed_ms
+        );
+
+
+    const sttLatency =
+        findStageLatency(
+            events,
+            "stt"
+        );
+
+
+    document.getElementById(
+        "dashboardStt"
+    ).textContent =
+        formatLatency(
+            sttLatency
+        );
+
+
+    const llmLatency =
+        findStageLatency(
+            events,
+            "llm"
+        );
+
+
+    document.getElementById(
+        "llmLatency"
+    ).textContent =
+        formatLatency(
+            llmLatency
+        );
+
+
+    const llmMetrics =
+        events.find(
+            event =>
+                event.stage === "llm" &&
+                event.event === "metrics"
+        );
+
+
+    const ttft =
+        llmMetrics
+            ? llmMetrics.ttft_ms
+            : null;
+
+
+    document.getElementById(
+        "dashboardTtft"
+    ).textContent =
+        formatLatency(
+            ttft
+        );
+
+
+    const chunkingLatency =
+        findStageLatency(
+            events,
+            "response_chunking"
+        );
+
+
+    document.getElementById(
+        "chunkingLatency"
+    ).textContent =
+        formatLatency(
+            chunkingLatency
+        );
+
+
+    const totalTts =
+        calculateTotalTtsLatency(
+            events
+        );
+
+
+    document.getElementById(
+        "dashboardTts"
+    ).textContent =
+        formatLatency(
+            totalTts
+        );
+
+
+    analyzeBottleneck(
+        events,
+        trace.total_elapsed_ms
+    );
+
+
+    document.getElementById(
+        "traceInfo"
+    ).textContent =
+        `Trace ID: ${trace.trace_id}`;
+
+
+    const tableBody =
+        document.getElementById(
+            "traceTableBody"
+        );
+
+
+    tableBody.innerHTML = "";
+
+
+    if (
+        events.length === 0
+    ) {
+
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="3">
+                    No trace events.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+
+    events.forEach(
+        event => {
+
+            const row =
+                document.createElement(
+                    "tr"
+                );
+
+
+            const stageCell =
+                document.createElement(
+                    "td"
+                );
+
+
+            stageCell.textContent =
+                event.stage;
+
+
+            const eventCell =
+                document.createElement(
+                    "td"
+                );
+
+
+            eventCell.textContent =
+                event.event;
+
+
+            const elapsedCell =
+                document.createElement(
+                    "td"
+                );
+
+
+            elapsedCell.textContent =
+                formatLatency(
+                    event.elapsed_ms
+                );
+
+
+            row.appendChild(
+                stageCell
+            );
+
+
+            row.appendChild(
+                eventCell
+            );
+
+
+            row.appendChild(
+                elapsedCell
+            );
+
+
+            tableBody.appendChild(
+                row
+            );
+        }
+    );
+
+
+    logEvent(
+        `Latency dashboard updated. Total: ${trace.total_elapsed_ms} ms`
+    );
+}
+
+
+/* ==========================================================
+   WEBSOCKET CONNECT
+========================================================== */
+
+function connectWebSocket() {
+
+    if (
+        socket &&
+        socket.readyState ===
+        WebSocket.OPEN
+    ) {
+
+        return;
+    }
+
+
+    const protocol =
+        window.location.protocol ===
+        "https:"
+            ? "wss"
+            : "ws";
+
+
+    const url =
+        `${protocol}://${window.location.host}/ws/voice`;
+
+
+    logEvent(
+        `Connecting to ${url}`
+    );
+
+
+    socket =
+        new WebSocket(url);
+
+
+    socket.binaryType =
+        "arraybuffer";
+
+
+    socket.onopen =
+        function() {
+
+            setStatus(
+                "Connected"
+            );
+
+
+            logEvent(
+                "WebSocket connected."
+            );
+
+
+            document.getElementById(
+                "connectButton"
+            ).disabled = true;
+
+
+            document.getElementById(
+                "startButton"
+            ).disabled = false;
+        };
+
+
+    socket.onmessage =
+        async function(event) {
+
+            if (
+                typeof event.data ===
+                "string"
+            ) {
+
+                let message;
+
+
+                try {
+
+                    message =
+                        JSON.parse(
+                            event.data
+                        );
+
+                } catch {
+
+                    logEvent(
+                        event.data
+                    );
+
+                    return;
+                }
+
+
+                handleServerMessage(
+                    message
+                );
+
+                return;
+            }
+
+
+            if (
+                event.data instanceof
+                ArrayBuffer
+            ) {
+
+                await queueAudio(
+                    event.data
+                );
+            }
+
+        };
+
+
+    socket.onclose =
+        function() {
+
+            setStatus(
+                "Disconnected"
+            );
+
+
+            logEvent(
+                "WebSocket disconnected."
+            );
+
+
+            document.getElementById(
+                "connectButton"
+            ).disabled = false;
+
+
+            document.getElementById(
+                "startButton"
+            ).disabled = true;
+
+
+            document.getElementById(
+                "stopButton"
+            ).disabled = true;
+        };
+
+
+    socket.onerror =
+        function() {
+
+            logEvent(
+                "WebSocket error."
+            );
+        };
+}
+
+
+/* ==========================================================
+   SERVER MESSAGE HANDLER
+========================================================== */
+
+function handleServerMessage(
+    message
+) {
+
+    logEvent(
+        JSON.stringify(message)
+    );
+
+
+    switch (
+        message.type
+    ) {
+
+        case "session_started":
+
+            setStatus(
+                "Connected"
+            );
+
+            break;
+
+
+        case "audio_stream_started":
+
+            setStatus(
+                "Listening"
+            );
+
+            break;
+
+
+        case "audio_chunk_received":
+
+            chunkCount =
+                message.chunk_number;
+
+
+            byteCount =
+                message.total_audio_bytes;
+
+
+            updateMetrics();
+
+            break;
+
+
+        case "ready_for_final_audio":
+
+            logEvent(
+                "Server is ready for complete recording."
+            );
+
+
+            if (
+                finalAudioReadyResolver
+            ) {
+
+                const resolve =
+                    finalAudioReadyResolver;
+
+
+                finalAudioReadyResolver =
+                    null;
+
+
+                resolve();
+            }
+
+            break;
+
+
+        case "final_audio_received":
+
+            logEvent(
+                `Complete recording received: ${message.audio_size_bytes} bytes`
+            );
+
+            break;
+
+
+        case "stt_started":
+
+            setStatus(
+                "Transcribing"
+            );
+
+            break;
+
+
+        case "transcript":
+
+            document.getElementById(
+                "transcript"
+            ).textContent =
+                message.text || "-";
+
+
+            document.getElementById(
+                "sttLatency"
+            ).textContent =
+                message.stt_latency_ms !== null
+                    ? `${message.stt_latency_ms} ms`
+                    : "-";
+
+
+            document.getElementById(
+                "dashboardStt"
+            ).textContent =
+                formatLatency(
+                    message.stt_latency_ms
+                );
+
+            break;
+
+
+        case "ai_response_started":
+
+            setStatus(
+                "AI responding"
+            );
+
+
+            document.getElementById(
+                "aiResponse"
+            ).textContent =
+                "";
+
+            break;
+
+
+        case "llm_completed":
+
+            document.getElementById(
+                "aiResponse"
+            ).textContent =
+                message.response || "-";
+
+
+            document.getElementById(
+                "ttft"
+            ).textContent =
+                message.ttft_ms !== null
+                    ? `${message.ttft_ms} ms`
+                    : "-";
+
+
+            document.getElementById(
+                "dashboardTtft"
+            ).textContent =
+                formatLatency(
+                    message.ttft_ms
+                );
+
+
+            document.getElementById(
+                "llmLatency"
+            ).textContent =
+                formatLatency(
+                    message.total_ms
+                );
+
+            break;
+
+
+        case "audio_response_start":
+
+            setStatus(
+                "AI speaking"
+            );
+
+            break;
+
+
+        case "audio_response_chunk":
+
+            if (
+                message.tts_latency_ms !== null
+            ) {
+
+                document.getElementById(
+                    "ttsLatency"
+                ).textContent =
+                    `${message.tts_latency_ms} ms`;
+            }
+
+            break;
+
+
+        case "ai_response_finished":
+
+            setStatus(
+                "Connected"
+            );
+
+            break;
+
+
+        case "barge_in_detected":
+
+            setStatus(
+                "Barge-in detected"
+            );
+
+
+            stopAudioPlayback();
+
+            break;
+
+
+        case "llm_interrupt_requested":
+
+            logEvent(
+                "LLM interruption requested."
+            );
+
+            break;
+
+
+        case "tts_cancel_requested":
+
+            logEvent(
+                "TTS cancellation requested."
+            );
+
+
+            stopAudioPlayback();
+
+            break;
+
+
+        case "tts_cancelled":
+
+            logEvent(
+                "TTS cancelled."
+            );
+
+            break;
+
+
+        case "ai_response_interrupted":
+
+            setStatus(
+                "Connected"
+            );
+
+
+            stopAudioPlayback();
+
+            break;
+
+
+        case "agent_trace":
+
+            logEvent(
+                `Agent trace received: ${message.trace_id}`
+            );
+
+
+            renderAgentTrace(
+                message
+            );
+
+            break;
+
+
+        case "error":
+
+            setStatus(
+                "Error"
+            );
+
+
+            logEvent(
+                `ERROR [${message.stage || "unknown"}]: ${message.message}`
+            );
+
+            break;
+
+    }
+}
+
+
+/* ==========================================================
+   START RECORDING
+========================================================== */
+
+async function startRecording() {
+
+    if (
+        !socket ||
+        socket.readyState !==
+        WebSocket.OPEN
+    ) {
+
+        logEvent(
+            "WebSocket is not connected."
+        );
+
+        return;
+    }
+
+
+    try {
+
+        microphoneStream =
+            await navigator.mediaDevices
+                .getUserMedia({
+                    audio: true
+                });
+
+
+        recordedChunks = [];
+
+
+        let options = {};
+
+
+        if (
+            MediaRecorder.isTypeSupported(
+                "audio/webm;codecs=opus"
+            )
+        ) {
+
+            options.mimeType =
+                "audio/webm;codecs=opus";
+
+        } else if (
+            MediaRecorder.isTypeSupported(
+                "audio/webm"
+            )
+        ) {
+
+            options.mimeType =
+                "audio/webm";
+        }
+
+
+        mediaRecorder =
+            new MediaRecorder(
+                microphoneStream,
+                options
+            );
+
+
+        chunkCount = 0;
+
+        byteCount = 0;
+
+
+        updateMetrics();
+
+
+        resetLatencyDashboard();
+
+
+        document.getElementById(
+            "transcript"
+        ).textContent = "-";
+
+
+        document.getElementById(
+            "aiResponse"
+        ).textContent = "-";
+
+
+        sendLiveChunks = true;
+
+
+        finalAudioReadyResolver =
+            null;
+
+
+        socket.send(
+            JSON.stringify({
+                type: "start_audio"
+            })
+        );
+
+
+        mediaRecorder.ondataavailable =
+            async function(event) {
+
+                if (
+                    !event.data ||
+                    event.data.size === 0
+                ) {
+
+                    return;
+                }
+
+
+                recordedChunks.push(
+                    event.data
+                );
+
+
+                const buffer =
+                    await event.data.arrayBuffer();
+
+
+                if (
+                    !sendLiveChunks
+                ) {
+
+                    logEvent(
+                        `Final MediaRecorder chunk kept locally: ${event.data.size} bytes`
+                    );
+
+                    return;
+                }
+
+
+                if (
+                    socket &&
+                    socket.readyState ===
+                    WebSocket.OPEN
+                ) {
+
+                    socket.send(
+                        buffer
+                    );
+                }
+            };
+
+
+        mediaRecorder.onstart =
+            function() {
+
+                setStatus(
+                    "Recording"
+                );
+
+
+                logEvent(
+                    "Microphone recording started."
+                );
+
+
+                document.getElementById(
+                    "startButton"
+                ).disabled = true;
+
+
+                document.getElementById(
+                    "stopButton"
+                ).disabled = false;
+            };
+
+
+        mediaRecorder.onstop =
+            async function() {
+
+                logEvent(
+                    "MediaRecorder stopped."
+                );
+
+
+                const mimeType =
+                    mediaRecorder.mimeType ||
+                    "audio/webm";
+
+
+                const completeBlob =
+                    new Blob(
+                        recordedChunks,
+                        {
+                            type: mimeType
+                        }
+                    );
+
+
+                logEvent(
+                    `Complete recording: ${completeBlob.size} bytes`
+                );
+
+
+                if (
+                    !socket ||
+                    socket.readyState !==
+                    WebSocket.OPEN
+                ) {
+
+                    logEvent(
+                        "WebSocket is not available for final audio."
+                    );
+
+                    return;
+                }
+
+
+                const readyPromise =
+                    new Promise(
+                        resolve => {
+
+                            finalAudioReadyResolver =
+                                resolve;
+                        }
+                    );
+
+
+                socket.send(
+                    JSON.stringify({
+                        type:
+                            "prepare_final_audio",
+                        mime_type:
+                            mimeType
+                    })
+                );
+
+
+                logEvent(
+                    "Waiting for server final-audio acknowledgement..."
+                );
+
+
+                await readyPromise;
+
+
+                logEvent(
+                    "Server acknowledged final audio."
+                );
+
+
+                const completeBuffer =
+                    await completeBlob.arrayBuffer();
+
+
+                if (
+                    socket &&
+                    socket.readyState ===
+                    WebSocket.OPEN
+                ) {
+
+                    socket.send(
+                        completeBuffer
+                    );
+
+
+                    logEvent(
+                        `Complete WebM recording sent: ${completeBuffer.byteLength} bytes`
+                    );
+                }
+
+            };
+
+
+        mediaRecorder.start(
+            250
+        );
+
+    } catch (error) {
+
+        logEvent(
+            `Microphone error: ${error.message}`
+        );
+
+
+        setStatus(
+            "Microphone error"
+        );
+    }
+}
+
+
+/* ==========================================================
+   STOP RECORDING
+========================================================== */
+
+function stopRecording() {
+
+    sendLiveChunks = false;
+
+
+    if (
+        mediaRecorder &&
+        mediaRecorder.state !==
+        "inactive"
+    ) {
+
+        mediaRecorder.stop();
+    }
+
+
+    if (microphoneStream) {
+
+        microphoneStream
+            .getTracks()
+            .forEach(
+                track =>
+                    track.stop()
+            );
+
+
+        microphoneStream = null;
+    }
+
+
+    setStatus(
+        "Processing voice..."
+    );
+
+
+    document.getElementById(
+        "startButton"
+    ).disabled = true;
+
+
+    document.getElementById(
+        "stopButton"
+    ).disabled = true;
+}
+
+
+/* ==========================================================
+   AUDIO PLAYBACK
+========================================================== */
+
+async function queueAudio(
+    arrayBuffer
+) {
+
+    audioQueue.push(
+        arrayBuffer
+    );
+
+
+    if (
+        !isPlayingAudio
+    ) {
+
+        await playNextAudio();
+    }
+}
+
+
+async function playNextAudio() {
+
+    if (
+        audioQueue.length === 0
+    ) {
+
+        isPlayingAudio = false;
+
+        return;
+    }
+
+
+    isPlayingAudio = true;
+
+
+    const audioData =
+        audioQueue.shift();
+
+
+    const blob =
+        new Blob(
+            [audioData],
+            {
+                type: "audio/wav"
+            }
+        );
+
+
+    const url =
+        URL.createObjectURL(
+            blob
+        );
+
+
+    const audio =
+        new Audio(url);
+
+
+    audio.onended =
+        function() {
+
+            URL.revokeObjectURL(
+                url
+            );
+
+
+            playNextAudio();
+        };
+
+
+    audio.onerror =
+        function() {
+
+            logEvent(
+                "Browser audio playback error."
+            );
+
+
+            URL.revokeObjectURL(
+                url
+            );
+
+
+            playNextAudio();
+        };
+
+
+    try {
+
+        await audio.play();
+
+    } catch (error) {
+
+        logEvent(
+            `Audio playback error: ${error.message}`
+        );
+
+
+        URL.revokeObjectURL(
+            url
+        );
+
+
+        playNextAudio();
+    }
+}
+
+
+function stopAudioPlayback() {
+
+    audioQueue = [];
+
+    isPlayingAudio = false;
+}
+
+
+/* ==========================================================
+   UTILITY
+========================================================== */
+
+function wait(
+    milliseconds
+) {
+
+    return new Promise(
+        resolve =>
+            setTimeout(
+                resolve,
+                milliseconds
+            )
+    );
+}
+
+</script>
+
+</body>
+
+</html>

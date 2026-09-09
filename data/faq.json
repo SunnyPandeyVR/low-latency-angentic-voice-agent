@@ -1,0 +1,22 @@
+[
+    {
+        "question": "What is the return policy?",
+        "answer": "Products can be returned within 30 days of delivery if they are unused and in their original condition."
+    },
+    {
+        "question": "How long does standard delivery take?",
+        "answer": "Standard delivery normally takes 3 to 5 business days."
+    },
+    {
+        "question": "How can I cancel an order?",
+        "answer": "An order can be cancelled before it has been shipped. Once shipped, cancellation may no longer be possible."
+    },
+    {
+        "question": "How do I get a refund?",
+        "answer": "Refunds are initiated after the returned product passes the return inspection. The refund normally reaches the original payment method within 5 to 7 business days."
+    },
+    {
+        "question": "Can I change my delivery address?",
+        "answer": "The delivery address can usually be changed before the order is shipped."
+    }
+]

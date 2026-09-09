@@ -1,0 +1,23 @@
+[
+    {
+        "order_id": "12345",
+        "customer": "Rahul",
+        "status": "Out for delivery",
+        "expected_delivery": "Tomorrow",
+        "amount": 2499
+    },
+    {
+        "order_id": "12346",
+        "customer": "Amit",
+        "status": "Processing",
+        "expected_delivery": "3 days",
+        "amount": 1599
+    },
+    {
+        "order_id": "12347",
+        "customer": "Priya",
+        "status": "Delivered",
+        "expected_delivery": "Delivered yesterday",
+        "amount": 3999
+    }
+]
